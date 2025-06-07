@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shop.Models;
 
-namespace Shop.Models
+public class CartItem
 {
-    class CartItem
-    {
-    }
+    public int Id { get; set; } // Это и есть первичный ключ
+
+    public Product? Product { get; set; }
+    public int Quantity { get; set; }
+
+    public decimal TotalPrice => Product?.Price * Quantity ?? 0m;
 }
