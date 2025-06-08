@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Shop.ViewModels;
+using Shop.Views;
 
 public class MainViewModel : INotifyPropertyChanged
 {
@@ -28,20 +29,32 @@ public class MainViewModel : INotifyPropertyChanged
 
     public MainViewModel(INavigationService navigationService)
     {
-        _navigationService = navigationService;
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
 
-        NavigateCatalogCommand = new RelayCommand(_ =>
-            _navigationService.NavigateTo<Shop.Views.CatalogView, CatalogViewModel>());
+        // Инициализация команд
+        NavigateCatalogCommand = new RelayCommand(OnNavigateToCatalog);
+        NavigateCartCommand = new RelayCommand(OnNavigateToCart);
 
-        NavigateCartCommand = new RelayCommand(_ =>
-            _navigationService.NavigateTo<Shop.Views.CartView, CartViewModel>());
+        // Подписка на обновление представления
+        _navigationService.CurrentViewChanged += OnCurrentViewChanged;
 
-        _navigationService.CurrentViewChanged += (s, e) =>
-        {
-            CurrentPageView = _navigationService.CurrentView;
-        };
+        // Начальная навигация
+        _navigationService.NavigateTo<CatalogView, CatalogViewModel>();
+    }
 
-        _navigationService.NavigateTo<Shop.Views.CatalogView, CatalogViewModel>();
+    private void OnNavigateToCatalog(object? param)
+    {
+        _navigationService.NavigateTo<CatalogView, CatalogViewModel>();
+    }
+
+    private void OnNavigateToCart(object? param)
+    {
+        _navigationService.NavigateTo<CartView, CartViewModel>();
+    }
+
+    private void OnCurrentViewChanged(object? sender, EventArgs e)
+    {
+        CurrentPageView = _navigationService.CurrentView;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

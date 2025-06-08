@@ -11,7 +11,7 @@ namespace Shop
 {
     public partial class App : Application
     {
-        private IServiceProvider? _serviceProvider;
+        private IServiceProvider _serviceProvider;
 
         protected override async void OnStartup(StartupEventArgs e)
         {
@@ -19,31 +19,58 @@ namespace Shop
 
             var services = new ServiceCollection();
 
+            // --- Настройка базы данных ---
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite("Data Source=shop.db"));
 
-            // Регистрация сервисов и моделей
+            // --- Регистрация сервисов ---
+            services.AddScoped<AuthService>();
             services.AddSingleton<INavigationService, NavigationService>();
-            services.AddTransient<ShopDbService>();
             services.AddSingleton<CartViewModel>();
 
-            // Регистрация ViewModels
+            // --- Регистрация ViewModels ---
             services.AddTransient<MainViewModel>();
             services.AddTransient<CatalogViewModel>();
+            services.AddTransient<RegisterViewModel>();
 
-            // Регистрация Views
+            // --- Регистрация Views ---
             services.AddSingleton<MainWindow>();
             services.AddTransient<CatalogView>();
             services.AddTransient<CartView>();
+            services.AddTransient<RegisterView>();
 
             _serviceProvider = services.BuildServiceProvider();
 
+            // --- Применение миграций ---
             using (var scope = _serviceProvider.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 await db.Database.MigrateAsync();
             }
 
+            // --- Показываем окно регистрации ---
+            ShowRegistrationWindow();
+        }
+
+        private void ShowRegistrationWindow()
+        {
+            var registerView = _serviceProvider.GetRequiredService<RegisterView>();
+            var registerViewModel = _serviceProvider.GetRequiredService<RegisterViewModel>();
+
+            registerView.DataContext = registerViewModel;
+
+            // Подписываемся на событие успешной регистрации
+            registerViewModel.RegistrationCompleted += (sender, args) =>
+            {
+                registerView.Close();
+                ShowMainWindow();
+            };
+
+            registerView.ShowDialog(); // Открываем как диалоговое окно
+        }
+
+        private void ShowMainWindow()
+        {
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }

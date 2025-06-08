@@ -10,6 +10,5 @@ namespace Shop.Views
             InitializeComponent();
             DataContext = vm;
         }
-
     }
 }
