@@ -3,6 +3,7 @@ using Shop.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Shop.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
@@ -29,17 +30,18 @@ public class MainViewModel : INotifyPropertyChanged
     {
         _navigationService = navigationService;
 
-        NavigateCatalogCommand = new RelayCommand(_ => _navigationService.NavigateTo<Shop.Views.CatalogView>());
-        NavigateCartCommand = new RelayCommand(_ => _navigationService.NavigateTo<Shop.Views.CartView>());
+        NavigateCatalogCommand = new RelayCommand(_ =>
+            _navigationService.NavigateTo<Shop.Views.CatalogView, CatalogViewModel>());
 
-        // Подписка на смену текущего View
+        NavigateCartCommand = new RelayCommand(_ =>
+            _navigationService.NavigateTo<Shop.Views.CartView, CartViewModel>());
+
         _navigationService.CurrentViewChanged += (s, e) =>
         {
             CurrentPageView = _navigationService.CurrentView;
         };
 
-        // Стартовая страница
-        _navigationService.NavigateTo<Shop.Views.CatalogView>();
+        _navigationService.NavigateTo<Shop.Views.CatalogView, CatalogViewModel>();
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

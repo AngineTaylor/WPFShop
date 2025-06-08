@@ -87,7 +87,7 @@
         <!-- Сумма и кнопка -->
         <Border Grid.Row="2" Background="White" Padding="20" BorderThickness="1,0,0,0" BorderBrush="#DDD">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock Text="{Binding TotalCartPrice, StringFormat=Итого: {0:C}}"
+                <TextBlock Text="{Binding TotalPrice, StringFormat=Итого: {0:C}}"
                            FontSize="20" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,20,0"/>
                 <Button Content="Оформить заказ"
                         Command="{Binding CheckoutCommand}"

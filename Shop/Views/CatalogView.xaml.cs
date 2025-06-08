@@ -10,6 +10,14 @@ namespace Shop.Views
         public CatalogView()
         {
             InitializeComponent();
+            this.Loaded += CatalogView_Loaded;
+        }
+
+        private void CatalogView_Loaded(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataContext: {this.DataContext?.GetType().Name}");
         }
     }
+
 }
+

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Shop.Services;
+using System.Windows.Controls;
 
 public class NavigationService : INavigationService
 {
@@ -23,6 +24,18 @@ public class NavigationService : INavigationService
         _serviceProvider = serviceProvider;
     }
 
+    public void NavigateTo<TView, TViewModel>()
+        where TView : UserControl
+        where TViewModel : class
+    {
+        var view = _serviceProvider.GetService(typeof(TView)) as UserControl;
+        var viewModel = _serviceProvider.GetService(typeof(TViewModel));
+        if (view == null || viewModel == null)
+            throw new InvalidOperationException("View или ViewModel не зарегистрированы в DI");
+
+        view.DataContext = viewModel;
+        CurrentView = view;
+    }
     public void NavigateTo<TViewModel>() where TViewModel : class
     {
         var viewModel = _serviceProvider.GetService<TViewModel>();
@@ -31,4 +44,5 @@ public class NavigationService : INavigationService
 
         CurrentView = viewModel;
     }
+
 }

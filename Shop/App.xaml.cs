@@ -19,18 +19,17 @@ namespace Shop
 
             var services = new ServiceCollection();
 
-            // Регистрация БД
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite("Data Source=shop.db"));
 
-            // Регистрация сервисов
+            // Регистрация сервисов и моделей
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddTransient<ShopDbService>();
+            services.AddSingleton<CartViewModel>();
 
             // Регистрация ViewModels
             services.AddTransient<MainViewModel>();
             services.AddTransient<CatalogViewModel>();
-            services.AddTransient<CartViewModel>();
 
             // Регистрация Views
             services.AddSingleton<MainWindow>();
@@ -39,7 +38,6 @@ namespace Shop
 
             _serviceProvider = services.BuildServiceProvider();
 
-            // Инициализация БД
             using (var scope = _serviceProvider.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
