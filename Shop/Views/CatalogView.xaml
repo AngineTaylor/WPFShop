@@ -44,28 +44,47 @@
                    HorizontalAlignment="Center"
                    Grid.Row="0"/>
 
-        <!-- Поисковая строка -->
-        <Grid HorizontalAlignment="Center" Margin="10" Grid.Row="1">
-            <TextBox x:Name="SearchTextBox"
-                     Width="450"
-                     Height="35"
-                     VerticalContentAlignment="Center"
-                     Padding="10"
-                     FontSize="14"
-                     Background="White"
-                     BorderBrush="#CCCCCC"
-                     BorderThickness="1"/>
-            <TextBlock Text="Поиск товаров..."
-                       IsHitTestVisible="False"
-                       Visibility="{Binding ElementName=SearchTextBox, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"
-                       Foreground="Gray"
-                       Margin="15,0,0,0"
-                       VerticalAlignment="Center"/>
+        <!-- Поисковая строка и фильтр по категориям -->
+        <Grid Grid.Row="1" HorizontalAlignment="Center" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="450"/>
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Поисковая строка -->
+            <Grid>
+                <TextBox x:Name="SearchTextBox"
+                         Width="450"
+                         Height="35"
+                         VerticalContentAlignment="Center"
+                         Padding="10"
+                         FontSize="14"
+                         Background="White"
+                         BorderBrush="#CCCCCC"
+                         BorderThickness="1"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Text="Поиск товаров..."
+                           IsHitTestVisible="False"
+                           Visibility="{Binding Text.IsEmpty, ElementName=SearchTextBox, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           Foreground="Gray"
+                           Margin="15,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Фильтр категорий -->
+            <ComboBox Grid.Column="1"
+                      Width="180"
+                      Height="35"
+                      Margin="10,0,0,0"
+                      ItemsSource="{Binding Categories}"
+                      SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="Id"/>
         </Grid>
 
         <!-- Список товаров -->
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="20">
-            <ItemsControl ItemsSource="{Binding Products}">
+            <ItemsControl ItemsSource="{Binding FilteredProducts}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel />
