@@ -11,7 +11,7 @@ namespace Shop
 {
     public partial class App : Application
     {
-        private IServiceProvider _serviceProvider;
+        private IServiceProvider? _serviceProvider;
 
         protected override async void OnStartup(StartupEventArgs e)
         {

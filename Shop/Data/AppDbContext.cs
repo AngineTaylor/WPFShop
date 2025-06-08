@@ -22,7 +22,12 @@ namespace Shop.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Здесь можно добавить seed данные или дополнительные настройки
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Items)
+                .WithOne(ci => ci.Order)
+                .HasForeignKey(ci => ci.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
+
     }
 }

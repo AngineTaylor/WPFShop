@@ -40,7 +40,7 @@ public class CartViewModel : INotifyPropertyChanged
         RemoveFromCartCommand = new RelayCommand(async obj => await RemoveFromCart(obj));
         IncreaseQuantityCommand = new RelayCommand(async obj => await IncreaseQuantity(obj));
         DecreaseQuantityCommand = new RelayCommand(async obj => await DecreaseQuantity(obj));
-        CheckoutCommand = new RelayCommand(Checkout);
+        CheckoutCommand = new RelayCommand(async obj => await Checkout());
 
         LoadCartItems();
     }
@@ -75,7 +75,6 @@ public class CartViewModel : INotifyPropertyChanged
 
         await _db.SaveChangesAsync();
 
-        // Обновляем UI
         OnPropertyChanged(nameof(CartItems));
         OnPropertyChanged(nameof(TotalPrice));
     }
@@ -101,14 +100,7 @@ public class CartViewModel : INotifyPropertyChanged
             _db.CartItems.Update(item);
             await _db.SaveChangesAsync();
 
-            // Обновляем элемент в коллекции, чтобы UI обновился
-            var index = CartItems.IndexOf(item);
-            if (index >= 0)
-            {
-                CartItems.RemoveAt(index);
-                CartItems.Insert(index, item);
-            }
-
+            RefreshItemInCollection(item);
             OnPropertyChanged(nameof(TotalPrice));
         }
     }
@@ -121,23 +113,59 @@ public class CartViewModel : INotifyPropertyChanged
             _db.CartItems.Update(item);
             await _db.SaveChangesAsync();
 
-            var index = CartItems.IndexOf(item);
-            if (index >= 0)
-            {
-                CartItems.RemoveAt(index);
-                CartItems.Insert(index, item);
-            }
-
+            RefreshItemInCollection(item);
             OnPropertyChanged(nameof(TotalPrice));
         }
     }
 
-    private void Checkout(object? obj)
+    private void RefreshItemInCollection(CartItem item)
     {
-        MessageBox.Show("Много хочешь", "Оформление заказа", MessageBoxButton.OK, MessageBoxImage.Information);
+        var index = CartItems.IndexOf(item);
+        if (index >= 0)
+        {
+            CartItems.RemoveAt(index);
+            CartItems.Insert(index, item);
+        }
     }
 
-    public decimal TotalPrice => CartItems.Sum(item => item.TotalPrice);
+    private async Task Checkout()
+    {
+        if (CartItems.Count == 0)
+        {
+            MessageBox.Show("Корзина пуста");
+            return;
+        }
+
+        var order = new Order
+        {
+            UserId = "CurrentUserId", // Здесь подставь реальный UserId из контекста пользователя
+            Status = "Новый",
+            TotalPrice = this.TotalPrice,
+            Items = CartItems.Select(ci => new CartItem
+            {
+                ProductId = ci.ProductId,
+                Quantity = ci.Quantity,
+                // Не нужно указывать OrderId, EF это сделает автоматически
+            }).ToList()
+        };
+
+        // Добавляем заказ с элементами
+        _db.Orders.Add(order);
+
+        // Удаляем текущие элементы из корзины (т.к. они теперь в заказе)
+        _db.CartItems.RemoveRange(CartItems);
+        CartItems.Clear();
+
+        await _db.SaveChangesAsync();
+
+        OnPropertyChanged(nameof(CartItems));
+        OnPropertyChanged(nameof(TotalPrice));
+
+        MessageBox.Show("Заказ оформлен!");
+    }
+
+
+    public decimal TotalPrice => CartItems.Sum(item => item.Product?.Price * item.Quantity ?? 0);
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string? name = null) =>

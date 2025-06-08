@@ -10,4 +10,8 @@ public class CartItem
     public int Quantity { get; set; }
 
     public decimal TotalPrice => Product.Price * Quantity;
+
+    // Связь с заказом
+    public int? OrderId { get; set; }  // может быть null, пока товар в корзине
+    public Order? Order { get; set; }
 }

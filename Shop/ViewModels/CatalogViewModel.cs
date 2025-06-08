@@ -88,11 +88,11 @@ namespace Shop.ViewModels
 
         public ICommand AddToCartCommand { get; }
 
-        private void AddToCart(object? parameter)
+        private async void AddToCart(object? parameter)
         {
             if (parameter is Product product)
             {
-                _cartViewModel.AddProduct(product);
+                await _cartViewModel.AddProduct(product);
             }
         }
 
